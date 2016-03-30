@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>validation</title>
+        <script>
+            function request(type, url, data) {
+                var http = new XMLHttpRequest();
+                http.open(type, url);
+                http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                http.send(data);
+                http.onreadystatechange = function () {
+                    if (this.readyState == 4) {
+                        if (this.status == 200) {
+                            location.reload();
+                        }
+                    }
+                };
+            }
+
+            function _new(url) {
+                var name = prompt("Please enter a name");
+                request("POST", url, "{}");
+            }
+
+            function _del(url) {
+                request("DELETE", url);
+            }
+        </script>
+    </head>
+    <body>
+        <a href="/schema">Schema</a>
+        <ul>
+        {% for s in schema %}
+        <li>
+            <a href="/schema/{{ s }}">{{ s }}</a>
+            <button>edit</button>
+            <button onclick="_del('/schema/{{ s }}')">del</button>
+        </li>
+        {% endfor %}
+        </ul>
+
+        {#
+        <form method="POST" action="/schema">
+            <input type="text" name="name" />
+            <input type="submit" value="new schema" />
+        </form>
+        #}
+        <button onclick="_new('/schema')">new</button>
+
+        <hr/>
+        Data
+        <ul>
+        {% for cat, names in data.items() %}
+            <li>
+                <a href="/data/{{ cat }}">{{ cat }}</a>
+                <button onclick="_new('/data/{{ cat }}')">new</button>
+                {#
+                <form method="POST" action="/data/{{ cat }}">
+                    <input type="text" name="name" />
+                    <input type="submit" value="new {{ cat }}" />
+                </form>
+                #}
+
+                {% for name, ok, msg in names %}
+                <ul>
+                    <li>
+                        <a href="/data/{{ cat }}/{{ name }}"
+                           {% if not ok %}
+                            style="color:red;" title="{{ msg }}"
+                           {% endif %}>
+                            {{ name }}
+                        </a>
+                        <button>edit</button>
+                        <button onclick="_del('/data/{{ cat }}/{{ name }}')">
+                            del
+                        </button>
+                    </li>
+                </ul>
+                {% endfor %}
+            </li>
+        {% endfor %}
+        </ul>
+    </body>
+</html>
